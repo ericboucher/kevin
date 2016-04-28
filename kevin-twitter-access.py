@@ -28,13 +28,15 @@ def process_or_store(tweet):
 #for status in tweepy.Cursor(api.home_timeline).items(1):
 #    # Process a single status
 #    process_or_store(status._json)
-
+count = 0
 class MyListener(StreamListener):
  
     def on_data(self, data):
         try:
             with open('python_stream.json', 'a') as f:
                 f.write(data)
+                count+=1
+                print "%d Tweets Saved"%count
                 return True
         except BaseException as e:
             print("Error on_data: %s" % str(e))
