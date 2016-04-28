@@ -6,26 +6,27 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy.streaming import StreamListener
 
- 
-consumer_key = 'u85eB4hxMGEMRcUOVxPMlx9Dx'
-consumer_secret = 'VGT8riFXPMWdU9sAXI0HA28KAiC2xGu1BUnsdb5P9vZ6RfAaOi'
-access_token = '702643972783673345-QBULSwJjrhMGIPYjjZ26tZmcwPdv6CN'
-access_secret = 'hfiEaieGx2jMqG2W9H51lAX7TC8wpQ4JDsVcWnlvVAlqG'
+# Authorisation
+with open("./client_secrets_twitter.json") as data_file:    
+    client_secrets_twitter = json.load(data_file)
+
+consumer_key = client_secrets_twitter['consumer_key']
+consumer_secret = client_secrets_twitter['consumer_secret']
+access_token = client_secrets_twitter['access_token']
+access_secret = client_secrets_twitter['access_secret']
  
 auth = OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_secret)
  
 api = tweepy.API(auth)
 
-
+## Test Auth
 def process_or_store(tweet):
     print(json.dumps(tweet))
-
 
 for status in tweepy.Cursor(api.home_timeline).items(10):
     # Process a single status
     process_or_store(status._json)
-
 
 class MyListener(StreamListener):
  
