@@ -69,7 +69,40 @@ class MyListener(StreamListener):
     def on_error(self, status):
         print(status)
         return True
+
+class RegisterTweet(StreamListener):
+
+    #TODO - Change this function to register new requests from users, or remove
+    # Option1 - Hey @KevinBot, please follow #XXX.
+    # Option2 - Thanks @kevinBot, I'm all set.
  
+    def on_data(self, data):
+ 
+    jsonData = json.loads(data.strip())
+     
+    retweeted = tweet.get('retweeted', False)
+    from_self = tweet.get('user',{}).get('id_str','') == account_user_id
+ 
+    if retweeted is not None and not retweeted and not from_self:
+ 
+        tweetId = jsonData.get('id_str')
+        screenName = jsonData.get('user').get('screen_name')
+        tweetText = jsonData.get('text')
+ 
+        chatResponse = chatbot.respond(tweetText)
+        # process stream data here
+
+        replyText = '@' + screenName + ' ' + chatResponse
+     
+    if len(replyText) > 140:
+            replyText = replyText[0:137] + '...'
+ 
+    twitterApi.update_status(replyText, tweetId)
+ 
+    def on_error(self, status):
+        print status
+ 
+
 hashtags_list = [u'#WHCD', u'#5WordLieToYourSpouse', u'#RDMA', u'#VindictiveSongs', u'#IfIMadeAMovie', u'#MikeysNewVideo', u'#independentbookstoreday', u'#stumpthetruck', u'#SparksEnergy300', u'#iHeartCountry']
 
 def create_stream(hashtags_list = []):
