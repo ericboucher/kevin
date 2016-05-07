@@ -6,7 +6,7 @@ class Filter:
 		self.ttl = ttl
 		self.createdAt = time.time()
 
-	def isExpired(self):
+	def is_expired(self):
 		return ((time.time() - self.createdAt) > self.ttl)
 
 	def __str__(self):
@@ -17,14 +17,14 @@ class FiltersList:
 		self.countFilters = len(listFilters)
 		self.filters = listFilters
 
-	def addFilter(self, filter):
+	def add_filter(self, filter):
 		self.countFilters += 1
 		self.filters.append(filter)
 
-	def cleanFiltersList(self):
+	def clean_filters_list(self):
 		self.filters = [filter for filter in self.filters if not (filter.isExpired())]
 
-	def exportFiltersList(self):
+	def export_filters_list(self):
 		self.cleanFiltersList()
 		return copy.deepcopy([filter.filterText for filter in self.filters])
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
 	filters = FiltersList([filterBla])
 	print filters
 	print "Exported filters"
-	print filters.exportFiltersList()
+	print filters.export_filters_list()
 	time.sleep(0.5)
 	print "Exported filters after expiration"
-	print filters.exportFiltersList()
+	print filters.export_filters_list()
