@@ -116,14 +116,14 @@ HASHTAGS_LIST = [u'#WHCD', u'#5WordLieToYourSpouse', u'#RDMA', u'#VindictiveSong
                  u'#IfIMadeAMovie', u'#MikeysNewVideo', u'#independentbookstoreday',
                  u'#stumpthetruck', u'#SparksEnergy300', u'#iHeartCountry']
 
-def get_trends():
-    """ This functions allows you to get trends"""
+def get_trends(n_trends=10):
+    """ This function allows you to get the n top trends"""
     api, _ = initialize_api()
 
     trends_us = api.trends_place(id=23424977)
     # TO DO - Order By tweet_volume
     hashtags = [x['name'] for x in trends_us[0]['trends'] if x['name'].startswith('#')]
-    trends_hashtag = hashtags[0:10]
+    trends_hashtag = hashtags[0:n_trends]
     return trends_hashtag
 
 def create_stream(hashtags_list=["#python"]):
