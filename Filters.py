@@ -1,5 +1,6 @@
 import time, copy
 
+
 class Filter():
     """Create an Object Filter
         :filter_text: the # the filter is selecting
@@ -17,6 +18,7 @@ class Filter():
 
     def __str__(self):
         return 'Filter on: "'+ self.filter_text + '", created at: ' + str(self.created_at) + ' and expires after: ' + str(self.ttl)
+
 
 class FiltersList():
     """Create an Object FiltersList to manage a list of filters.

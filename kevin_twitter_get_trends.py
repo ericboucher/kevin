@@ -1,6 +1,7 @@
 """ This module allows to fetch the last trends trends"""
 from kevin_twitter_access import initialize_api
 
+
 def get_trends(n_trends=10):
     """ This functions allows you to get trends"""
     api, _ = initialize_api()
