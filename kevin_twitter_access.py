@@ -21,11 +21,24 @@ ACCESS_SECRET = CLIENT_SECRETS_TWITTER['access_secret']
 AUTH = OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 AUTH.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
 
-def process_or_store(tweet):
-    """Process tweet"""
-    print json.dumps(tweet)
 
 def process_tweet(data):
+    """process raw tweet"""
+    mtweet = json.loads(data)
+    # We only want to write tweets; we'll skip 'delete' and
+    # 'limit' information.
+    if 'delete' in mtweet:
+        print "contained delete"
+        return True
+    if 'limit' in mtweet:
+        return True
+
+    dump = {}
+    dump['created_at'] = mtweet['created_at']
+    dump['text'] = mtweet['text'].encode('ascii', 'ignore')
+    return dump
+
+def store_tweet(data):
     """process raw tweet"""
     mtweet = json.loads(data)
     # We only want to write tweets; we'll skip 'delete' and
@@ -53,10 +66,9 @@ def initialize_api():
     return tweepy.API(AUTH), AUTH
 
 def get_timeline_status():
-    return "hello"
-    #for status in tweepy.Cursor(api.home_timeline).items(1):
-    #    # Process a single status
-    #    process_or_store(status._json)
+    for status in tweepy.Cursor(API.home_timeline).items(1):
+       # Process a single status
+       print status._json
 
 class SimpleListener(StreamListener):
     """StreamListener implementation"""
@@ -65,16 +77,49 @@ class SimpleListener(StreamListener):
         self.count = 0
 
     def on_data(self, data):
+        try:
+            process_tweet(data)
+            self.count += 1
+            if self.count%10 == 0:
+                print "%d Tweets Processed"%self.count
+            return True
+        except BaseException as base_error:
+            print "Error on_data: %s" % str(base_error)
+            time.sleep(5)
+
+        return True
+
+    def on_error(self, status):
+        print status
+        return True
+
+class ActiveListener(StreamListener):
+    """StreamListener implementation"""
+    def __init__(self, new_reqs=[]):
+        StreamListener.__init__(self)
+        self.count = 0
+        self.new_requests = new_reqs
+
+    def on_data(self, data):
         #try:
-        process_tweet(data)
+        dump = process_tweet(data)
         self.count += 1
+
+        # TOdO if tweet contains #kevinthebot
+        # Add request to list
+
+        if "#kevinthebot" in dump['text']:
+            print dump['text']
+            self.new_requests.append(dump)
+            print self.new_requests
+
         if self.count%10 == 0:
             print "%d Tweets Processed"%self.count
+
         return True
-        #except BaseException as base_error:
-        #    print "Error on_data: %s" % str(base_error)
-        #    time.sleep(5)
-        #   return True
+
+    def get_requests(self):
+        return self.new_requests
 
     def on_error(self, status):
         print status
@@ -129,6 +174,13 @@ def get_trends(n_trends=10):
 def create_stream(hashtags_list=["#python"]):
     """stream_creator"""
     twitter_stream = Stream(AUTH, SimpleListener())
+    twitter_stream.filter(track=hashtags_list, async=True)
+    return twitter_stream
+
+def initialize_stream(listener, hashtags_list=["#python"]):
+    """stream_creator"""
+    _, auth = initialize_api()
+    twitter_stream = Stream(auth, listener)
     twitter_stream.filter(track=hashtags_list, async=True)
     return twitter_stream
 
